@@ -1,4 +1,10 @@
-# Aide — Brain
+from pathlib import Path
+from datetime import datetime
+
+root = Path(__file__).resolve().parents[1]
+brain = root / 'brain.md'
+
+summary = f"""# Aide — Brain
 
 ## Project identity
 Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such as TryHackMe, HackTheBox, PortSwigger, and CTFs. It is designed to teach progressively rather than spoil solutions.
@@ -7,7 +13,7 @@ Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such a
 - Phase 1 is implemented: FastAPI backend with `/health` and `/chat`, provider-aware LLM routing, a simple React/Vite frontend, and provider settings storage.
 - Provider storage is implemented with OS keyring first and an encrypted-file fallback for headless or non-keyring environments.
 - The repo is now organized around the `aide` package path under `Rufus/aide`.
-- Last updated: 2026-06-29 07:55:57 UTC
+- Last updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}
 
 ## Architecture
 - Backend: FastAPI in `Rufus/aide/app/backend`
@@ -29,3 +35,7 @@ Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such a
 
 ## Update policy
 Whenever significant implementation work happens, update this file with the latest architecture, state, and next priorities so a new session can recover context quickly.
+"""
+
+brain.write_text(summary)
+print(f'updated {brain}')

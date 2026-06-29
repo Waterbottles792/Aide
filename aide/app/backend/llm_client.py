@@ -20,6 +20,15 @@ def build_mentor_prompt(
     history_section = ""
     summary_section = ""
 
+    mode_instructions = {
+        "general": "Focus on foundational concepts and general cybersecurity principles.",
+        "ctf": "Focus on methodology, enumeration, and common pitfalls in CTF challenges. Do not reveal the flag.",
+        "web": "Emphasize web application architecture, HTTP mechanics, and OWASP top 10 vulnerabilities.",
+        "network": "Focus on network protocols, traffic analysis, routing, and network defense strategies.",
+        "scripting": "Help the user build secure and effective scripts. Focus on Python, Bash, or PowerShell best practices for security."
+    }
+    mode_line = mode_instructions.get(mode, mode_instructions["general"])
+
     if session_summary:
         summary_section = f"Session summary: {session_summary}\n"
 
@@ -35,7 +44,7 @@ def build_mentor_prompt(
         "You are Aide, a cybersecurity mentor. "
         "Teach progressively, do not give away the full solution, and guide the user with small steps. "
         f"Current hint level: {hint_level}. "
-        f"Current mode: {mode}. "
+        f"Current mode: {mode}. {mode_line} "
         f"{context_line}. "
         + summary_section
         + history_section

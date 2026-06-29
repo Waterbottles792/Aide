@@ -1,0 +1,245 @@
+/* Primer Primitives — design tokens (CSS custom properties).
+   These imports establish the token + theme baseline that every Primer
+   component and all of our own CSS reads from. Order matters: base + functional
+   tokens first, then the per-theme functional color sets. */
+@import '@primer/primitives/dist/css/base/size/size.css';
+@import '@primer/primitives/dist/css/base/typography/typography.css';
+@import '@primer/primitives/dist/css/base/motion/motion.css';
+@import '@primer/primitives/dist/css/functional/size/border.css';
+@import '@primer/primitives/dist/css/functional/size/breakpoints.css';
+@import '@primer/primitives/dist/css/functional/size/size-coarse.css';
+@import '@primer/primitives/dist/css/functional/size/size-fine.css';
+@import '@primer/primitives/dist/css/functional/size/size.css';
+@import '@primer/primitives/dist/css/functional/size/viewport.css';
+@import '@primer/primitives/dist/css/functional/typography/typography.css';
+
+@import '@primer/primitives/dist/css/functional/themes/light.css';
+@import '@primer/primitives/dist/css/functional/themes/dark.css';
+@import '@primer/primitives/dist/css/functional/themes/dark-dimmed.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100vh;
+  background-color: var(--bgColor-default);
+  color: var(--fgColor-default);
+  font-family: var(--font-inter), var(--fontStack-system, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif);
+}
+
+#__next {
+  min-height: 100vh;
+}
+
+body {
+  /* Ambient depth behind the glass panels — built from Primer accent/done tokens
+     (blue -> purple) so it stays on-theme without hardcoded color values. */
+  background-image:
+    radial-gradient(60rem 60rem at 12% -10%, color-mix(in oklab, var(--bgColor-accent-emphasis) 22%, transparent), transparent 60%),
+    radial-gradient(55rem 55rem at 100% 0%, color-mix(in oklab, var(--bgColor-done-emphasis) 18%, transparent), transparent 55%);
+  background-attachment: fixed;
+}
+
+/* ---- Display type ---------------------------------------------------- */
+.aide-display {
+  font-family: var(--font-outfit), var(--fontStack-sansSerifDisplay, var(--fontStack-system));
+  letter-spacing: -0.01em;
+}
+
+/* ---- Brand gradients ------------------------------------------------- */
+.aide-gradient-bg {
+  background-image: linear-gradient(135deg, var(--bgColor-accent-emphasis), var(--bgColor-done-emphasis));
+}
+.aide-gradient-text {
+  background-image: linear-gradient(120deg, var(--fgColor-accent), var(--fgColor-done));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Glass surfaces -------------------------------------------------- */
+.aide-glass {
+  background-color: color-mix(in oklab, var(--bgColor-inset) 70%, transparent);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: var(--borderWidth-thin, 1px) solid var(--borderColor-muted);
+}
+.aide-glass-raised {
+  background-color: color-mix(in oklab, var(--bgColor-default) 78%, transparent);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: var(--borderWidth-thin, 1px) solid var(--borderColor-muted);
+}
+
+/* ---- Soft glow ------------------------------------------------------- */
+.aide-glow-accent {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--bgColor-accent-emphasis) 40%, transparent),
+    0 12px 40px color-mix(in oklab, var(--bgColor-accent-emphasis) 35%, transparent);
+}
+.aide-glow-hover {
+  transition:
+    transform 160ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+.aide-glow-hover:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--borderColor-accent-emphasis) 60%, var(--borderColor-muted));
+  box-shadow: 0 14px 44px color-mix(in oklab, var(--bgColor-accent-emphasis) 22%, transparent);
+}
+
+.aide-live-dot {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--borderRadius-full);
+  background-color: var(--bgColor-success-emphasis);
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--bgColor-success-emphasis) 70%, transparent);
+  animation: aide-pulse 2.2s ease-out infinite;
+}
+
+/* ---- Keyframes ------------------------------------------------------- */
+@keyframes aide-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--bgColor-success-emphasis) 60%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px color-mix(in oklab, var(--bgColor-success-emphasis) 0%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--bgColor-success-emphasis) 0%, transparent);
+  }
+}
+
+@keyframes aide-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.aide-rise {
+  animation: aide-rise 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes aide-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.aide-fade {
+  animation: aide-fade 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes aide-bounce {
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  40% {
+    transform: translateY(-5px);
+    opacity: 1;
+  }
+}
+.aide-bounce-dot {
+  animation: aide-bounce 1.3s infinite ease-in-out both;
+}
+
+/* ---- App shell (two-column, desktop-first) -------------------------- */
+.aide-shell {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  height: 100dvh;
+  overflow: hidden;
+  padding: var(--base-size-12);
+  gap: var(--base-size-12);
+}
+.aide-shell__sidebar {
+  height: 100%;
+  min-height: 0;
+  border-radius: var(--borderRadius-large);
+  overflow: hidden;
+}
+.aide-shell__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  border-radius: var(--borderRadius-large);
+  overflow: hidden;
+  background-color: color-mix(in oklab, var(--bgColor-default) 55%, transparent);
+  border: var(--borderWidth-thin, 1px) solid var(--borderColor-muted);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+@media (max-width: 880px) {
+  .aide-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .aide-shell__sidebar {
+    height: auto;
+    max-height: none;
+  }
+  .aide-shell__main {
+    min-height: 70dvh;
+  }
+}
+
+/* Press/scale affordance for interactive surfaces */
+.aide-press {
+  transition: transform 120ms ease;
+}
+.aide-press:active {
+  transform: scale(0.97);
+}
+
+/* Custom scrollbar that reads from Primer tokens */
+.aide-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--borderColor-emphasis) transparent;
+}
+.aide-scroll::-webkit-scrollbar {
+  width: 10px;
+}
+.aide-scroll::-webkit-scrollbar-thumb {
+  background-color: color-mix(in oklab, var(--borderColor-emphasis) 70%, transparent);
+  border-radius: var(--borderRadius-full);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.aide-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--borderColor-emphasis);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aide-rise,
+  .aide-fade,
+  .aide-bounce-dot,
+  .aide-live-dot {
+    animation: none;
+  }
+  .aide-glow-hover:hover {
+    transform: none;
+  }
+}

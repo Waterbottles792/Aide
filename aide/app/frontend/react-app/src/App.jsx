@@ -181,63 +181,92 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">Aide — Chat (Phase 2)</header>
-      <main className="chat">
-        {messages.map((m, i) => (
-          <div key={i} className={m.role === 'user' ? 'msg user' : 'msg bot'}>
-            <div className="role">{m.role}</div>
-            <div className="content">{m.content}</div>
-          </div>
-        ))}
-      </main>
-      <footer className="composer">
-        <div className="composerControls">
+      <aside className="sidebar">
+        <h2>Aide</h2>
+        
+        <div className="sidebar-section">
+          <label>Provider Config</label>
+          <button onClick={() => setShowSettings(true)}>Settings</button>
+        </div>
+
+        <div className="sidebar-section">
+          <label>Learning Settings</label>
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+            <option value="general">General</option>
+            <option value="web">Web</option>
+            <option value="network">Network</option>
+            <option value="ctf">CTF</option>
+            <option value="scripting">Scripting</option>
+          </select>
           <select value={hintLevel} onChange={(e) => setHintLevel(e.target.value)}>
             <option value="guided">Guided</option>
             <option value="beginner">Beginner</option>
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
-          <select value={mode} onChange={(e) => setMode(e.target.value)}>
-            <option value="general">General</option>
-            <option value="web">Web</option>
-            <option value="network">Network</option>
-            <option value="ctf">CTF</option>
-          </select>
           <input value={challengeContext} onChange={(e) => setChallengeContext(e.target.value)} placeholder="Challenge context" />
         </div>
-        <div className="composerControls">
-          <input value={sessionName} onChange={(e) => setSessionName(e.target.value)} placeholder="Session name" />
-          <input value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Session summary / notes" />
-          <button
-            onClick={() => newSession()}
-            style={{ marginLeft: 8 }}
-          >
-            New Session
-          </button>
-        </div>
-        <div className="composerRow">
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask for a hint..." />
-          <button onClick={send} disabled={loading}>{loading ? '...' : 'Send'}</button>
-          <button onClick={() => setShowSettings(true)} style={{ marginLeft: 8 }}>Settings</button>
-        </div>
-        <div className="composerControls">
+
+        <div className="sidebar-section">
+          <label>Session</label>
+          <button className="primary" onClick={() => newSession()}>New Session</button>
           <select value={sessionId || ''} onChange={(e) => selectSession(e.target.value)}>
-            <option value="">New session</option>
+            <option value="">-- Select Session --</option>
             {sessions.map((s) => (
               <option key={s.session_id} value={s.session_id}>
                 {s.name} ({s.turns} turns)
               </option>
             ))}
           </select>
+          <input value={sessionName} onChange={(e) => setSessionName(e.target.value)} placeholder="Session name" />
+          <input value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Session summary" />
         </div>
-      </footer>
+        
+        <div className="status-indicator">
+          <div className={`dot ${savedProviders.length > 0 ? 'green' : 'red'}`}></div>
+          {savedProviders.length > 0 ? 'Provider Ready' : 'No Provider Set'}
+        </div>
+      </aside>
+
+      <main className="main-area">
+        <div className="chat">
+          {messages.length === 0 && (
+            <div className="empty-state">
+              <h1>Welcome to Aide</h1>
+              <p>Your personal cybersecurity mentor. Set your context, choose a mode, and let's start learning!</p>
+            </div>
+          )}
+          {messages.map((m, i) => (
+            <div key={i} className={`msg ${m.role === 'user' ? 'user' : 'bot'}`}>
+              <div className="role">{m.role}</div>
+              <div className="content">{m.content}</div>
+            </div>
+          ))}
+          {loading && (
+            <div className="msg bot">
+              <div className="role">assistant</div>
+              <div className="typing"><span></span><span></span><span></span></div>
+            </div>
+          )}
+        </div>
+        <div className="composer">
+          <div className="composerRow">
+            <input 
+              value={input} 
+              onChange={(e) => setInput(e.target.value)} 
+              onKeyDown={(e) => e.key === 'Enter' && send()}
+              placeholder="Ask for a hint..." 
+            />
+            <button className="primary" onClick={send} disabled={loading}>Send</button>
+          </div>
+        </div>
+      </main>
 
       {showSettings && (
         <div className="modal">
           <div className="modalInner">
             <h3>Provider Settings</h3>
-            <p>Saved providers: {savedProviders.length ? savedProviders.join(', ') : 'none'}</p>
+            <p style={{fontSize: '0.85rem', color: '#9ca3af', margin: 0}}>Saved providers: {savedProviders.length ? savedProviders.join(', ') : 'none'}</p>
             <label>
               Name
               <input value={providerForm.name} onChange={(e) => setProviderForm({ ...providerForm, name: e.target.value })} />
@@ -257,9 +286,9 @@ export default function App() {
               Model
               <input value={providerForm.model} onChange={(e) => setProviderForm({ ...providerForm, model: e.target.value })} />
             </label>
-            <div style={{ marginTop: 8 }}>
-              <button onClick={onSaveSettings}>Save</button>
-              <button onClick={() => setShowSettings(false)} style={{ marginLeft: 8 }}>Cancel</button>
+            <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+              <button className="primary" onClick={onSaveSettings}>Save</button>
+              <button onClick={() => setShowSettings(false)}>Cancel</button>
             </div>
           </div>
         </div>

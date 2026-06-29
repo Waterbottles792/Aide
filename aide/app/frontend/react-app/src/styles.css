@@ -1,0 +1,9 @@
+body { font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+.header { background: #111; color: #fff; padding: 12px; }
+.chat { padding: 12px; height: 60vh; overflow: auto; }
+.composer { padding: 12px; display:flex; gap:8px }
+.msg { margin-bottom:8px }
+.msg.user { text-align: right }
+
+.modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.4); }
+.modalInner { background: #fff; padding: 16px; border-radius:8px; width: 320px }

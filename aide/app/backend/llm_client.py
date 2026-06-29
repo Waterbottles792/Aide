@@ -15,7 +15,7 @@ class LLMClient:
     """
 
     def __init__(self):
-        self.default_model = os.getenv("MENTOR_AI_DEFAULT_MODEL", "gpt-3.5-turbo")
+        self.default_model = os.getenv("AIDE_DEFAULT_MODEL", "gpt-3.5-turbo")
 
     async def generate_reply(self, message: str, provider: Optional[dict] = None) -> str:
         if provider and getattr(provider, "provider", None) is None:
@@ -92,4 +92,3 @@ class LLMClient:
                 return "Provider returned unexpected response shape."
             except httpx.HTTPError as e:
                 return f"Provider request failed: {str(e)}"
-

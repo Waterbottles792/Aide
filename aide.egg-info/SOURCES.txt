@@ -1,0 +1,13 @@
+setup.py
+aide/__init__.py
+aide/cli.py
+aide/provider_client.py
+aide.egg-info/PKG-INFO
+aide.egg-info/SOURCES.txt
+aide.egg-info/dependency_links.txt
+aide.egg-info/entry_points.txt
+aide.egg-info/requires.txt
+aide.egg-info/top_level.txt
+tests/test_cli_config.py
+tests/test_mentor_prompt.py
+tests/test_session_store.py

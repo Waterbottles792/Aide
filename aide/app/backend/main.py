@@ -52,6 +52,7 @@ async def chat(req: ChatRequest):
         hint_level=context.get("hint_level", "guided"),
         challenge_context=context.get("challenge_context"),
         mode=context.get("mode", "general"),
+        session_history=context.get("session_history"),
     )
     return ChatResponse(reply=reply, source="mentor")
 

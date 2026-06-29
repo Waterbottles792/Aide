@@ -23,6 +23,18 @@ class BuildMentorPromptTests(unittest.TestCase):
         self.assertIn("guided", prompt.lower())
         self.assertIn("teach progressively", prompt.lower())
 
+    def test_includes_recent_session_history(self):
+        prompt = build_mentor_prompt(
+            "What should I try next?",
+            session_history=[
+                {"role": "user", "content": "I tried a basic payload"},
+                {"role": "assistant", "content": "Try checking the response body"},
+            ],
+        )
+
+        self.assertIn("session history", prompt.lower())
+        self.assertIn("response body", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -46,6 +46,7 @@ export default function App() {
             hint_level: hintLevel,
             challenge_context: challengeContext || undefined,
             mode,
+            session_history: [...messages, userMsg],
           },
         }),
       })

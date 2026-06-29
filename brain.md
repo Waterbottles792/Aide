@@ -7,7 +7,7 @@ Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such a
 - Phase 1 is implemented: FastAPI backend with `/health` and `/chat`, provider-aware LLM routing, a simple React/Vite frontend, and provider settings storage.
 - Provider storage is implemented with OS keyring first and an encrypted-file fallback for headless or non-keyring environments.
 - The repo is now organized around the `aide` package path under `Rufus/aide`.
-- Last updated: 2026-06-29 07:55:57 UTC
+- Last updated: 2026-06-29 08:13:42 UTC
 
 ## Architecture
 - Backend: FastAPI in `Rufus/aide/app/backend`

@@ -6,7 +6,9 @@ Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such a
 ## Current state
 - Phase 2 is in progress: mentor-style guidance with hint levels, session summary support, and session-aware prompt generation.
 - The backend now accepts a typed `SessionContext`, including `hint_level`, `challenge_context`, `mode`, `session_history`, and `session_summary`.
-- The frontend includes session notes input and a New Session reset control to start fresh without losing the app state.
+- Session persistence is implemented in `aide/app/backend/session_store.py`; sessions are saved to `sessions.json` and can be reloaded across app restarts.
+- The frontend includes session name/summary inputs, session selection, and a New Session reset flow.
+- A CLI-based terminal mentor is available via `aide` with setup prompts for provider, API key, learning platform, and room.
 - Phase 1 baseline remains implemented: FastAPI backend with `/health` and `/chat`, provider-aware LLM routing, React/Vite frontend, and provider settings storage.
 - Provider storage is implemented with OS keyring first and an encrypted-file fallback for headless or non-keyring environments.
 - The repo is organized around the `aide` package path under `Rufus/aide`.

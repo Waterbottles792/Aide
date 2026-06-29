@@ -86,11 +86,13 @@ Make the assistant remember the current learning context across turns.
 - Track the current challenge or topic.
 - Preserve conversation context within a session.
 - Add optional session summaries.
+- Persist sessions to disk so they survive restarts.
 - Allow the user to reset or start a new learning session.
 - Keep context compact and relevant.
 
 ### Deliverables
 - Session-aware conversations.
+- Session persistence across app reloads.
 - Better continuity and less repetitive guidance.
 - Cleaner state handling in the app.
 

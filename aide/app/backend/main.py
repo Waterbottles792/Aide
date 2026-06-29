@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from .llm_client import LLMClient
 from .provider_store import ProviderStore
+from .session_store import SessionStore
 
 app = FastAPI(title="Aide - Backend (Phase 2)")
 
@@ -45,6 +46,7 @@ class ChatResponse(BaseModel):
 
 llm = LLMClient()
 store = ProviderStore()
+session_store = SessionStore()
 
 
 @app.get("/health")
@@ -67,6 +69,68 @@ async def chat(req: ChatRequest):
     return ChatResponse(reply=reply, source="mentor")
 
 
+@app.get("/sessions")
+def list_sessions():
+    return session_store.list_sessions()
+
+
+@app.get("/sessions/{session_id}")
+def get_session(session_id: str):
+    session = session_store.get_session(session_id)
+    if not session:
+        return {"error": "not found"}, 404
+    return session
+
+
+class SessionSave(BaseModel):
+    session_id: str | None = None
+    name: str | None = 'Untitled session'
+    summary: str | None = ''
+    hint_level: str | None = 'guided'
+    challenge_context: str | None = None
+    mode: str | None = 'general'
+    history: list[dict] | None = None
+
+
+@app.post("/sessions")
+def create_session(session: SessionSave):
+    result = session_store.create_session(
+        name=session.name or "Untitled session",
+        summary=session.summary or "",
+        hint_level=session.hint_level or "guided",
+        challenge_context=session.challenge_context,
+        mode=session.mode or "general",
+        history=session.history or [],
+    )
+    return result
+
+
+@app.put("/sessions/{session_id}")
+def save_session(session_id: str, session: SessionSave):
+    stored = session_store.get_session(session_id)
+    if not stored:
+        return {"error": "not found"}, 404
+    session_data = {
+        **stored,
+        **{
+            "name": session.name or stored.get("name", "Untitled session"),
+            "summary": session.summary or stored.get("summary", ""),
+            "hint_level": session.hint_level or stored.get("hint_level", "guided"),
+            "challenge_context": session.challenge_context if session.challenge_context is not None else stored.get("challenge_context"),
+            "mode": session.mode or stored.get("mode", "general"),
+            "history": session.history or stored.get("history", []),
+        },
+        "session_id": session_id,
+    }
+    return session_store.save_session(session_data)
+
+
+@app.delete("/sessions/{session_id}")
+def delete_session(session_id: str):
+    ok = session_store.delete_session(session_id)
+    return {"status": "deleted" if ok else "not found"}
+
+
 class ProviderSave(BaseModel):
     name: str
     provider: str
@@ -74,6 +138,16 @@ class ProviderSave(BaseModel):
     model: str | None = None
     base_url: str | None = None
     temperature: float | None = 0.2
+
+
+class SessionSave(BaseModel):
+    session_id: str | None = None
+    name: str | None = 'Untitled session'
+    summary: str | None = ''
+    hint_level: str | None = 'guided'
+    challenge_context: str | None = None
+    mode: str | None = 'general'
+    history: list[dict] | None = None
 
 
 @app.get("/providers")

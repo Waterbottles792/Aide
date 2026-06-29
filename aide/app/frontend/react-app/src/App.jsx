@@ -9,7 +9,10 @@ export default function App() {
   const [hintLevel, setHintLevel] = useState('guided')
   const [challengeContext, setChallengeContext] = useState('')
   const [mode, setMode] = useState('general')
+  const [sessionName, setSessionName] = useState('New session')
   const [sessionSummary, setSessionSummary] = useState('')
+  const [sessionId, setSessionId] = useState(null)
+  const [sessions, setSessions] = useState([])
   const [providerForm, setProviderForm] = useState({ name: 'default', provider: 'openai', api_key: '', model: 'gpt-3.5-turbo' })
 
   async function loadProviders() {
@@ -27,14 +30,68 @@ export default function App() {
     }
   }
 
+  async function loadSessions() {
+    try {
+      const resp = await fetch('http://127.0.0.1:8000/sessions')
+      const data = await resp.json()
+      setSessions(data || [])
+      if (!sessionId && data.length) {
+        const first = data[0]
+        setSessionId(first.session_id)
+        setSessionName(first.name)
+        setSessionSummary(first.summary || '')
+        setHintLevel(first.hint_level || 'guided')
+        setChallengeContext(first.challenge_context || '')
+        setMode(first.mode || 'general')
+        setMessages(first.history || [])
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  async function selectSession(sessionIdToLoad) {
+    try {
+      if (!sessionIdToLoad) {
+        newSession()
+        return
+      }
+      const resp = await fetch(`http://127.0.0.1:8000/sessions/${sessionIdToLoad}`)
+      if (!resp.ok) throw new Error('failed to load session')
+      const data = await resp.json()
+      setSessionId(data.session_id)
+      setSessionName(data.name)
+      setSessionSummary(data.summary || '')
+      setHintLevel(data.hint_level || 'guided')
+      setChallengeContext(data.challenge_context || '')
+      setMode(data.mode || 'general')
+      setMessages(data.history || [])
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  function newSession() {
+    setSessionId(null)
+    setSessionName('New session')
+    setSessionSummary('')
+    setHintLevel('guided')
+    setChallengeContext('')
+    setMode('general')
+    setMessages([])
+    setInput('')
+  }
+
   useEffect(() => {
     loadProviders()
+    loadSessions()
   }, [])
 
   async function send() {
     if (!input.trim()) return
     const userMsg = { role: 'user', content: input }
-    setMessages((m) => [...m, { ...userMsg }])
+    const updatedMessages = [...messages, userMsg]
+    setMessages(updatedMessages)
     setInput('')
     setLoading(true)
     try {
@@ -48,12 +105,24 @@ export default function App() {
             challenge_context: challengeContext || undefined,
             mode,
             session_summary: sessionSummary || undefined,
-            session_history: [...messages, userMsg],
+            session_history: updatedMessages,
+            session_id: sessionId || undefined,
           },
         }),
       })
       const data = await resp.json()
-      setMessages((m) => [...m, { role: 'assistant', content: data.reply }])
+      const assistantMsg = { role: 'assistant', content: data.reply }
+      const nextMessages = [...updatedMessages, assistantMsg]
+      setMessages(nextMessages)
+      await saveSession({
+        session_id: sessionId,
+        name: sessionName,
+        summary: sessionSummary,
+        hint_level: hintLevel,
+        challenge_context: challengeContext,
+        mode,
+        history: nextMessages,
+      })
     } catch (e) {
       setMessages((m) => [...m, { role: 'assistant', content: 'Error contacting backend.' }])
     } finally {
@@ -74,6 +143,33 @@ export default function App() {
     } catch (e) {
       console.error(e)
       return false
+    }
+  }
+
+  async function saveSession(session) {
+    try {
+      const url = session.session_id
+        ? `http://127.0.0.1:8000/sessions/${session.session_id}`
+        : 'http://127.0.0.1:8000/sessions'
+      const method = session.session_id ? 'PUT' : 'POST'
+      const resp = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(session),
+      })
+      if (!resp.ok) throw new Error('session save failed')
+      const data = await resp.json()
+      setSessions((prev) => {
+        const existing = prev.filter((item) => item.session_id !== data.session_id)
+        return [data, ...existing]
+      })
+      if (!sessionId) {
+        setSessionId(data.session_id)
+      }
+      return data
+    } catch (e) {
+      console.error(e)
+      return null
     }
   }
 
@@ -111,14 +207,10 @@ export default function App() {
           <input value={challengeContext} onChange={(e) => setChallengeContext(e.target.value)} placeholder="Challenge context" />
         </div>
         <div className="composerControls">
+          <input value={sessionName} onChange={(e) => setSessionName(e.target.value)} placeholder="Session name" />
           <input value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Session summary / notes" />
           <button
-            onClick={() => {
-              setMessages([])
-              setInput('')
-              setChallengeContext('')
-              setSessionSummary('')
-            }}
+            onClick={() => newSession()}
             style={{ marginLeft: 8 }}
           >
             New Session
@@ -128,6 +220,16 @@ export default function App() {
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask for a hint..." />
           <button onClick={send} disabled={loading}>{loading ? '...' : 'Send'}</button>
           <button onClick={() => setShowSettings(true)} style={{ marginLeft: 8 }}>Settings</button>
+        </div>
+        <div className="composerControls">
+          <select value={sessionId || ''} onChange={(e) => selectSession(e.target.value)}>
+            <option value="">New session</option>
+            {sessions.map((s) => (
+              <option key={s.session_id} value={s.session_id}>
+                {s.name} ({s.turns} turns)
+              </option>
+            ))}
+          </select>
         </div>
       </footer>
 

@@ -35,6 +35,15 @@ class BuildMentorPromptTests(unittest.TestCase):
         self.assertIn("session history", prompt.lower())
         self.assertIn("response body", prompt)
 
+    def test_includes_session_summary(self):
+        prompt = build_mentor_prompt(
+            "What should I try next?",
+            session_summary="Working on a TryHackMe web challenge with SQL injection",
+        )
+
+        self.assertIn("session summary", prompt.lower())
+        self.assertIn("TryHackMe web challenge", prompt)
+
 
 if __name__ == "__main__":
     unittest.main()

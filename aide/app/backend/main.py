@@ -23,9 +23,18 @@ class ProviderConfig(BaseModel):
     temperature: float | None = 0.2
 
 
+class SessionContext(BaseModel):
+    hint_level: str | None = "guided"
+    challenge_context: str | None = None
+    mode: str | None = "general"
+    session_history: list[dict] | None = None
+    session_summary: str | None = None
+    session_id: str | None = None
+
+
 class ChatRequest(BaseModel):
     message: str
-    context: dict | None = None
+    context: SessionContext | None = None
     provider: ProviderConfig | None = None
 
 
@@ -45,14 +54,15 @@ async def health():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    context = req.context or {}
+    context = req.context or SessionContext()
     reply = await llm.generate_reply(
         req.message,
         provider=req.provider,
-        hint_level=context.get("hint_level", "guided"),
-        challenge_context=context.get("challenge_context"),
-        mode=context.get("mode", "general"),
-        session_history=context.get("session_history"),
+        hint_level=context.hint_level,
+        challenge_context=context.challenge_context,
+        mode=context.mode,
+        session_history=context.session_history,
+        session_summary=context.session_summary,
     )
     return ChatResponse(reply=reply, source="mentor")
 

@@ -9,6 +9,7 @@ export default function App() {
   const [hintLevel, setHintLevel] = useState('guided')
   const [challengeContext, setChallengeContext] = useState('')
   const [mode, setMode] = useState('general')
+  const [sessionSummary, setSessionSummary] = useState('')
   const [providerForm, setProviderForm] = useState({ name: 'default', provider: 'openai', api_key: '', model: 'gpt-3.5-turbo' })
 
   async function loadProviders() {
@@ -46,6 +47,7 @@ export default function App() {
             hint_level: hintLevel,
             challenge_context: challengeContext || undefined,
             mode,
+            session_summary: sessionSummary || undefined,
             session_history: [...messages, userMsg],
           },
         }),
@@ -107,6 +109,20 @@ export default function App() {
             <option value="ctf">CTF</option>
           </select>
           <input value={challengeContext} onChange={(e) => setChallengeContext(e.target.value)} placeholder="Challenge context" />
+        </div>
+        <div className="composerControls">
+          <input value={sessionSummary} onChange={(e) => setSessionSummary(e.target.value)} placeholder="Session summary / notes" />
+          <button
+            onClick={() => {
+              setMessages([])
+              setInput('')
+              setChallengeContext('')
+              setSessionSummary('')
+            }}
+            style={{ marginLeft: 8 }}
+          >
+            New Session
+          </button>
         </div>
         <div className="composerRow">
           <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask for a hint..." />

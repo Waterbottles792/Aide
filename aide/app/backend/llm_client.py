@@ -11,12 +11,17 @@ def build_mentor_prompt(
     challenge_context: Optional[str] = None,
     mode: str = "general",
     session_history: Optional[list[dict]] = None,
+    session_summary: Optional[str] = None,
 ) -> str:
     """Create a mentor-style prompt that keeps the assistant tutoring instead of spoiling."""
     hint_level = (hint_level or "guided").strip().lower() or "guided"
     mode = (mode or "general").strip().lower() or "general"
     context_line = f"Challenge context: {challenge_context}" if challenge_context else "Challenge context: none provided"
     history_section = ""
+    summary_section = ""
+
+    if session_summary:
+        summary_section = f"Session summary: {session_summary}\n"
 
     if session_history:
         history_lines = []
@@ -24,7 +29,7 @@ def build_mentor_prompt(
             role = item.get("role", "user")
             content = item.get("content", "")
             history_lines.append(f"{role}: {content}")
-        history_section = "Session history:\n" + "\n".join(history_lines)
+        history_section = "Session history:\n" + "\n".join(history_lines) + "\n"
 
     return (
         "You are Aide, a cybersecurity mentor. "
@@ -32,9 +37,10 @@ def build_mentor_prompt(
         f"Current hint level: {hint_level}. "
         f"Current mode: {mode}. "
         f"{context_line}. "
-        "Prefer a helpful nudge, a focused explanation, and one next action. "
-        "If the user is stuck, ask a guiding question before giving a direct answer. "
-        + (history_section + "\n" if history_section else "")
+        + summary_section
+        + history_section
+        + "Prefer a helpful nudge, a focused explanation, and one next action. "
+        + "If the user is stuck, ask a guiding question before giving a direct answer. "
         + f"User request: {message}"
     )
 
@@ -59,6 +65,7 @@ class LLMClient:
         challenge_context: Optional[str] = None,
         mode: str = "general",
         session_history: Optional[list[dict]] = None,
+        session_summary: Optional[str] = None,
     ) -> str:
         if provider and getattr(provider, "provider", None) is None:
             provider = dict(provider)
@@ -69,6 +76,7 @@ class LLMClient:
             challenge_context=challenge_context,
             mode=mode,
             session_history=session_history,
+            session_summary=session_summary,
         )
 
         if provider and provider.get("provider") == "openai":

@@ -4,9 +4,12 @@
 Aide is a desktop-first GenAI mentor for cybersecurity learning platforms such as TryHackMe, HackTheBox, PortSwigger, and CTFs. It is designed to teach progressively rather than spoil solutions.
 
 ## Current state
-- Phase 1 is implemented: FastAPI backend with `/health` and `/chat`, provider-aware LLM routing, a simple React/Vite frontend, and provider settings storage.
+- Phase 2 is in progress: mentor-style guidance with hint levels, session summary support, and session-aware prompt generation.
+- The backend now accepts a typed `SessionContext`, including `hint_level`, `challenge_context`, `mode`, `session_history`, and `session_summary`.
+- The frontend includes session notes input and a New Session reset control to start fresh without losing the app state.
+- Phase 1 baseline remains implemented: FastAPI backend with `/health` and `/chat`, provider-aware LLM routing, React/Vite frontend, and provider settings storage.
 - Provider storage is implemented with OS keyring first and an encrypted-file fallback for headless or non-keyring environments.
-- The repo is now organized around the `aide` package path under `Rufus/aide`.
+- The repo is organized around the `aide` package path under `Rufus/aide`.
 - Last updated: 2026-06-29 08:13:42 UTC
 
 ## Architecture

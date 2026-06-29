@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .llm_client import LLMClient
 from .provider_store import ProviderStore
 
-app = FastAPI(title="Aide - Backend (Phase 1)")
+app = FastAPI(title="Aide - Backend (Phase 2)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,9 +45,15 @@ async def health():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest):
-    # For Phase 1 we return a routed reply via the LLM client stub
-    reply = await llm.generate_reply(req.message, provider=req.provider)
-    return ChatResponse(reply=reply, source="stub")
+    context = req.context or {}
+    reply = await llm.generate_reply(
+        req.message,
+        provider=req.provider,
+        hint_level=context.get("hint_level", "guided"),
+        challenge_context=context.get("challenge_context"),
+        mode=context.get("mode", "general"),
+    )
+    return ChatResponse(reply=reply, source="mentor")
 
 
 class ProviderSave(BaseModel):

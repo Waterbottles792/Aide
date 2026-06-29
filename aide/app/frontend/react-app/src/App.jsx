@@ -6,6 +6,9 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [savedProviders, setSavedProviders] = useState([])
   const [showSettings, setShowSettings] = useState(false)
+  const [hintLevel, setHintLevel] = useState('guided')
+  const [challengeContext, setChallengeContext] = useState('')
+  const [mode, setMode] = useState('general')
   const [providerForm, setProviderForm] = useState({ name: 'default', provider: 'openai', api_key: '', model: 'gpt-3.5-turbo' })
 
   async function loadProviders() {
@@ -37,7 +40,14 @@ export default function App() {
       const resp = await fetch('http://127.0.0.1:8000/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({
+          message: input,
+          context: {
+            hint_level: hintLevel,
+            challenge_context: challengeContext || undefined,
+            mode,
+          },
+        }),
       })
       const data = await resp.json()
       setMessages((m) => [...m, { role: 'assistant', content: data.reply }])
@@ -72,7 +82,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">Aide — Chat (Phase 1)</header>
+      <header className="header">Aide — Chat (Phase 2)</header>
       <main className="chat">
         {messages.map((m, i) => (
           <div key={i} className={m.role === 'user' ? 'msg user' : 'msg bot'}>
@@ -82,9 +92,26 @@ export default function App() {
         ))}
       </main>
       <footer className="composer">
-        <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask for a hint..." />
-        <button onClick={send} disabled={loading}>{loading ? '...' : 'Send'}</button>
-        <button onClick={() => setShowSettings(true)} style={{ marginLeft: 8 }}>Settings</button>
+        <div className="composerControls">
+          <select value={hintLevel} onChange={(e) => setHintLevel(e.target.value)}>
+            <option value="guided">Guided</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <select value={mode} onChange={(e) => setMode(e.target.value)}>
+            <option value="general">General</option>
+            <option value="web">Web</option>
+            <option value="network">Network</option>
+            <option value="ctf">CTF</option>
+          </select>
+          <input value={challengeContext} onChange={(e) => setChallengeContext(e.target.value)} placeholder="Challenge context" />
+        </div>
+        <div className="composerRow">
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask for a hint..." />
+          <button onClick={send} disabled={loading}>{loading ? '...' : 'Send'}</button>
+          <button onClick={() => setShowSettings(true)} style={{ marginLeft: 8 }}>Settings</button>
+        </div>
       </footer>
 
       {showSettings && (

@@ -1,9 +1,13 @@
-body { font-family: system-ui, sans-serif; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; margin: 0; padding: 0; background: #f5f7fb; }
 .header { background: #111; color: #fff; padding: 12px; }
 .chat { padding: 12px; height: 60vh; overflow: auto; }
-.composer { padding: 12px; display:flex; gap:8px }
-.msg { margin-bottom:8px }
-.msg.user { text-align: right }
+.composer { padding: 12px; display:flex; flex-direction:column; gap:8px }
+.composerControls { display:flex; gap:8px; flex-wrap:wrap; }
+.composerRow { display:flex; gap:8px; }
+.composer input, .composer select, .modal input, .modal select { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+.composer button, .modal button { padding: 8px 10px; border: 0; border-radius: 6px; background: #2563eb; color: #fff; cursor: pointer; }
+.msg { margin-bottom:8px; padding: 8px 10px; border-radius: 8px; background: #fff; }
+.msg.user { text-align: right; background: #dbeafe; }
 
 .modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.4); }
-.modalInner { background: #fff; padding: 16px; border-radius:8px; width: 320px }
+.modalInner { background: #fff; padding: 16px; border-radius:8px; width: 320px; display:flex; flex-direction:column; gap:8px }

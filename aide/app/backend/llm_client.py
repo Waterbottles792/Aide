@@ -5,32 +5,60 @@ from typing import Optional
 import httpx
 
 
+def build_mentor_prompt(message: str, hint_level: str = "guided", challenge_context: Optional[str] = None, mode: str = "general") -> str:
+    """Create a mentor-style prompt that keeps the assistant tutoring instead of spoiling."""
+    hint_level = (hint_level or "guided").strip().lower() or "guided"
+    mode = (mode or "general").strip().lower() or "general"
+    context_line = f"Challenge context: {challenge_context}" if challenge_context else "Challenge context: none provided"
+
+    return (
+        "You are Aide, a cybersecurity mentor. "
+        "Teach progressively, do not give away the full solution, and guide the user with small steps. "
+        f"Current hint level: {hint_level}. "
+        f"Current mode: {mode}. "
+        f"{context_line}. "
+        "Prefer a helpful nudge, a focused explanation, and one next action. "
+        "If the user is stuck, ask a guiding question before giving a direct answer. "
+        f"User request: {message}"
+    )
+
+
 class LLMClient:
     """Provider-agnostic LLM client with simple OpenAI routing.
 
-    Supported providers in Phase 1:
+    Supported providers in Phase 2:
     - openai: uses OpenAI Chat Completions API with `api_key` and optional `model`.
     - generic: forwards to a provider `base_url` expecting a ChatCompletions-like endpoint.
-    If `provider` is None or unsupported a helpful stub message is returned.
+    If `provider` is None or unsupported a helpful mentor-style stub message is returned.
     """
 
     def __init__(self):
         self.default_model = os.getenv("AIDE_DEFAULT_MODEL", "gpt-3.5-turbo")
 
-    async def generate_reply(self, message: str, provider: Optional[dict] = None) -> str:
+    async def generate_reply(
+        self,
+        message: str,
+        provider: Optional[dict] = None,
+        hint_level: str = "guided",
+        challenge_context: Optional[str] = None,
+        mode: str = "general",
+    ) -> str:
         if provider and getattr(provider, "provider", None) is None:
-            # allow dict-like access
             provider = dict(provider)
 
+        mentor_prompt = build_mentor_prompt(message, hint_level=hint_level, challenge_context=challenge_context, mode=mode)
+
         if provider and provider.get("provider") == "openai":
-            return await self._openai_chat(message, provider)
+            return await self._openai_chat(mentor_prompt, provider)
 
         if provider and provider.get("provider") == "generic" and provider.get("base_url"):
-            return await self._generic_chat(message, provider)
+            return await self._generic_chat(mentor_prompt, provider)
 
-        # Fallback stub
         await asyncio.sleep(0.01)
-        return f"[Phase 1 stub] I received your message: {message}\n(Configure a provider to get real LLM replies.)"
+        return (
+            "[Phase 2 mentor mode] I can guide you progressively. "
+            f"Try this next step: {message}"
+        )
 
     async def _openai_chat(self, message: str, provider: dict) -> str:
         api_key = provider.get("api_key") or os.getenv("OPENAI_API_KEY")

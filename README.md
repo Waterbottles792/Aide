@@ -28,7 +28,6 @@ Unlike traditional AI assistants that immediately reveal solutions, Aide provide
 * Google Gemini
 * Groq
 * OpenRouter
-* Ollama *(planned)*
 
 ---
 
